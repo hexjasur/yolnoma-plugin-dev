@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { buildPluginCommand } from './build.js';
@@ -25,6 +25,40 @@ export function getYolnomaPluginsDir(): string {
   }
 
   return path.join(localAppData, 'Yolnoma', 'plugins');
+}
+
+/**
+ * Copies the built dist/plugin.js artifact into the Yolnoma AppData plugins directory.
+ */
+export function copyPluginArtifactToAppData(
+  projectDir: string,
+  pluginId: string
+): { destinationDir: string; destinationFile: string; sizeKb: string } {
+  const distPluginJs = path.join(projectDir, 'dist', 'plugin.js');
+  if (!fileExists(distPluginJs)) {
+    throw new Error('Plugin output file "dist/plugin.js" not found.');
+  }
+
+  const pluginsRootDir = getYolnomaPluginsDir();
+  const targetFolder = pluginId.trim();
+  const targetPluginDir = path.join(pluginsRootDir, targetFolder);
+  const targetPluginJs = path.join(targetPluginDir, 'plugin.js');
+
+  ensureDir(targetPluginDir);
+  fs.copyFileSync(distPluginJs, targetPluginJs);
+
+  if (!fileExists(targetPluginJs)) {
+    throw new Error(`Verification failed: installed plugin file does not exist at "${targetPluginJs}".`);
+  }
+
+  const stats = fs.statSync(targetPluginJs);
+  const sizeKb = (stats.size / 1024).toFixed(2);
+
+  return {
+    destinationDir: targetPluginDir,
+    destinationFile: targetPluginJs,
+    sizeKb,
+  };
 }
 
 /**
@@ -73,41 +107,16 @@ export async function installPluginCommand(
   }
   logger.step('Plugin output found: \x1b[32mdist/plugin.js\x1b[0m');
 
-  // 4. Resolve destination path in %LOCALAPPDATA%\Yolnoma\plugins\<config.id>
-  let pluginsRootDir: string;
+  // 4. Install artifact to AppData
   try {
-    pluginsRootDir = getYolnomaPluginsDir();
+    const { destinationDir, sizeKb } = copyPluginArtifactToAppData(projectDir, config.id);
+    logger.step(`Installing to:\n    \x1b[36m${destinationDir}\x1b[0m`);
+    logger.step(`Verified installed artifact: \x1b[32mplugin.js\x1b[0m (\x1b[36m${sizeKb} KB\x1b[0m)`);
   } catch (err) {
-    logger.error(err instanceof Error ? err.message : String(err));
+    logger.error(`Failed to install plugin artifact: ${err instanceof Error ? err.message : String(err)}`);
     process.exitCode = 1;
     return;
   }
-
-  const targetFolder = config.id.trim();
-  const targetPluginDir = path.join(pluginsRootDir, targetFolder);
-  const targetPluginJs = path.join(targetPluginDir, 'plugin.js');
-
-  logger.step(`Installing to:\n    \x1b[36m${targetPluginDir}\x1b[0m`);
-
-  try {
-    ensureDir(targetPluginDir);
-    fs.copyFileSync(distPluginJs, targetPluginJs);
-  } catch (err) {
-    logger.error(`Failed to copy plugin to destination: ${err instanceof Error ? err.message : String(err)}`);
-    process.exitCode = 1;
-    return;
-  }
-
-  // 5. Verify installed artifact existence and size
-  if (!fileExists(targetPluginJs)) {
-    logger.error(`Verification failed: installed plugin file does not exist at "${targetPluginJs}".`);
-    process.exitCode = 1;
-    return;
-  }
-
-  const stats = fs.statSync(targetPluginJs);
-  const sizeKb = (stats.size / 1024).toFixed(2);
-  logger.step(`Verified installed artifact: \x1b[32mplugin.js\x1b[0m (\x1b[36m${sizeKb} KB\x1b[0m)`);
 
   logger.success(`Plugin "${config.name}" installed successfully.`);
 }

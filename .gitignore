@@ -2,6 +2,6 @@
 dist/
 *.tsbuildinfo
 .DS_Store
-demo/
+# demo/
 test-plugin/
 temp/
