@@ -1,4 +1,5 @@
 ﻿import { createPluginCommand } from '../commands/create.js';
+import { buildPluginCommand } from '../commands/build.js';
 import { logger } from '../utils/logger.js';
 
 const VERSION = '0.1.0';
@@ -28,7 +29,6 @@ export async function runCli(args: string[]): Promise<void> {
         return;
       }
 
-      // Parse optional flags
       let id: string | undefined;
       let author: string | undefined;
       let description: string | undefined;
@@ -45,6 +45,12 @@ export async function runCli(args: string[]): Promise<void> {
       }
 
       await createPluginCommand(name, { id, author, description });
+      break;
+    }
+
+    case 'build': {
+      const targetDir = rest[0] && !rest[0].startsWith('-') ? rest[0] : process.cwd();
+      await buildPluginCommand(targetDir);
       break;
     }
 
@@ -65,6 +71,7 @@ function printHelp(): void {
 
 \x1b[1mCOMMANDS:\x1b[0m
   \x1b[36mcreate <name>\x1b[0m    Create a new starter Yolnoma plugin project
+  \x1b[36mbuild [dir]\x1b[0m      Build a Yolnoma plugin project into dist/plugin.js
 
 \x1b[1mOPTIONS:\x1b[0m
   -v, --version    Show CLI version
@@ -77,6 +84,7 @@ function printHelp(): void {
 
 \x1b[1mEXAMPLES:\x1b[0m
   yolnoma-plugin-dev create hello-plugin
-  yolnoma-plugin-dev create my-tool --id com.company.my-tool
+  yolnoma-plugin-dev build
+  yolnoma-plugin-dev build ./my-plugin
 `);
 }
