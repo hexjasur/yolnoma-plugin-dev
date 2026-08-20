@@ -67,6 +67,16 @@ yolnoma-plugin-dev install
 yolnoma-plugin-dev install ./my-plugin
 ```
 
+### `uninstall [dir]`
+
+Uninstalls the plugin by removing its directory from the Yolnoma AppData plugins directory (`%LOCALAPPDATA%\Yolnoma\plugins\<plugin-id>\`).
+
+```bash
+yolnoma-plugin-dev uninstall
+# or specify project directory
+yolnoma-plugin-dev uninstall ./my-plugin
+```
+
 ## Development Workflow
 
 1. Create a plugin:
@@ -89,7 +99,10 @@ yolnoma-plugin-dev install ./my-plugin
    ```bash
    yolnoma-plugin-dev install
    ```
-   The plugin is immediately ready to run inside Yolnoma!
+6. Uninstall from Yolnoma when needed:
+   ```bash
+   yolnoma-plugin-dev uninstall
+   ```
 
 ## License
 
