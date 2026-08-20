@@ -1,4 +1,4 @@
-﻿# yolnoma-plugin-dev
+# yolnoma-plugin-dev
 
 > Official developer CLI and build tool for Yolnoma plugins.
 
@@ -47,6 +47,26 @@ hello-plugin/
 └── README.md
 ```
 
+### `build [dir]`
+
+Builds the plugin project into `dist/plugin.js`.
+
+```bash
+yolnoma-plugin-dev build
+# or specify project directory
+yolnoma-plugin-dev build ./my-plugin
+```
+
+### `install [dir]`
+
+Builds the plugin and automatically installs `dist/plugin.js` to the Yolnoma AppData plugins directory (`%LOCALAPPDATA%\Yolnoma\plugins\<plugin-id>\plugin.js`).
+
+```bash
+yolnoma-plugin-dev install
+# or specify project directory
+yolnoma-plugin-dev install ./my-plugin
+```
+
 ## Development Workflow
 
 1. Create a plugin:
@@ -63,9 +83,13 @@ hello-plugin/
    ```
 4. Build the plugin bundle:
    ```bash
-   npm run build
+   yolnoma-plugin-dev build
    ```
-   This generates `dist/plugin.js`, ready to be loaded into Yolnoma.
+5. Install into Yolnoma:
+   ```bash
+   yolnoma-plugin-dev install
+   ```
+   The plugin is immediately ready to run inside Yolnoma!
 
 ## License
 

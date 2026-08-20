@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import fs from 'fs';
 import { build as tsupBuild } from 'tsup';
 import { loadYolnomaConfig, findConfigFile } from '../config/loader.js';
@@ -8,6 +8,7 @@ import { logger } from '../utils/logger.js';
 export interface BuildCommandOptions {
   readonly sourcemap?: boolean;
   readonly clean?: boolean;
+  readonly silent?: boolean;
 }
 
 /**
@@ -16,17 +17,19 @@ export interface BuildCommandOptions {
 export async function buildPluginCommand(
   targetDir = process.cwd(),
   options: BuildCommandOptions = {}
-): Promise<void> {
+): Promise<boolean> {
   const projectDir = path.resolve(targetDir);
 
-  logger.raw(`\n\x1b[1mBuilding Yolnoma plugin in\x1b[0m \x1b[36m${projectDir}\x1b[0m...\n`);
+  if (!options.silent) {
+    logger.raw(`\n\x1b[1mBuilding Yolnoma plugin in\x1b[0m \x1b[36m${projectDir}\x1b[0m...\n`);
+  }
 
   // 1. Verify package.json exists
   const packageJsonPath = path.join(projectDir, 'package.json');
   if (!fileExists(packageJsonPath)) {
     logger.error(`No package.json found in "${projectDir}". Ensure you run this command inside a plugin project.`);
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   // 2. Verify yolnoma.config.ts exists and load configuration
@@ -38,7 +41,7 @@ export async function buildPluginCommand(
   } catch (err) {
     logger.error(err instanceof Error ? err.message : String(err));
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   // 3. Verify entry file exists
@@ -55,7 +58,7 @@ export async function buildPluginCommand(
   } else {
     logger.error(`Plugin entry file not found at "src/index.tsx" or "src/index.ts" in "${projectDir}".`);
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   // 4. Run the bundle build
@@ -92,7 +95,7 @@ export async function buildPluginCommand(
   } catch (err) {
     logger.error(`Build failed: ${err instanceof Error ? err.message : String(err)}`);
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   const duration = Date.now() - startTime;
@@ -103,12 +106,16 @@ export async function buildPluginCommand(
   if (!fileExists(outputPluginJs)) {
     logger.error('Build output verification failed: "dist/plugin.js" was not generated.');
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   const stats = fs.statSync(outputPluginJs);
   const sizeKb = (stats.size / 1024).toFixed(2);
   logger.step(`Output verified: \x1b[32mdist/plugin.js\x1b[0m (\x1b[36m${sizeKb} KB\x1b[0m)`);
 
-  logger.success(`Plugin "${config.name}" built successfully.`);
+  if (!options.silent) {
+    logger.success(`Plugin "${config.name}" built successfully.`);
+  }
+
+  return true;
 }

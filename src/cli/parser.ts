@@ -1,5 +1,6 @@
-﻿import { createPluginCommand } from '../commands/create.js';
+import { createPluginCommand } from '../commands/create.js';
 import { buildPluginCommand } from '../commands/build.js';
+import { installPluginCommand } from '../commands/install.js';
 import { logger } from '../utils/logger.js';
 
 const VERSION = '0.1.0';
@@ -54,6 +55,12 @@ export async function runCli(args: string[]): Promise<void> {
       break;
     }
 
+    case 'install': {
+      const targetDir = rest[0] && !rest[0].startsWith('-') ? rest[0] : process.cwd();
+      await installPluginCommand(targetDir);
+      break;
+    }
+
     default: {
       logger.error(`Unknown command: "${command}"`);
       printHelp();
@@ -72,6 +79,7 @@ function printHelp(): void {
 \x1b[1mCOMMANDS:\x1b[0m
   \x1b[36mcreate <name>\x1b[0m    Create a new starter Yolnoma plugin project
   \x1b[36mbuild [dir]\x1b[0m      Build a Yolnoma plugin project into dist/plugin.js
+  \x1b[36minstall [dir]\x1b[0m    Build and install a plugin to Yolnoma AppData plugins directory
 
 \x1b[1mOPTIONS:\x1b[0m
   -v, --version    Show CLI version
@@ -85,6 +93,7 @@ function printHelp(): void {
 \x1b[1mEXAMPLES:\x1b[0m
   yolnoma-plugin-dev create hello-plugin
   yolnoma-plugin-dev build
-  yolnoma-plugin-dev build ./my-plugin
+  yolnoma-plugin-dev install
+  yolnoma-plugin-dev install ./hello-plugin
 `);
 }
