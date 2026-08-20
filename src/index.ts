@@ -3,8 +3,9 @@ import { runCli } from './cli/parser.js';
 export { runCli } from './cli/parser.js';
 export { createPluginCommand } from './commands/create.js';
 export { buildPluginCommand } from './commands/build.js';
-export { installPluginCommand, getYolnomaPluginsDir } from './commands/install.js';
+export { installPluginCommand, getYolnomaPluginsDir, copyPluginArtifactToAppData } from './commands/install.js';
 export { uninstallPluginCommand } from './commands/uninstall.js';
+export { devPluginCommand } from './commands/dev.js';
 export { loadYolnomaConfig } from './config/loader.js';
 export { renderPluginTemplate } from './templates/index.js';
 
