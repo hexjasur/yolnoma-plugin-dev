@@ -8,6 +8,7 @@ export { uninstallPluginCommand } from './commands/uninstall.js';
 export { devPluginCommand } from './commands/dev.js';
 export { loadYolnomaConfig } from './config/loader.js';
 export { renderPluginTemplate } from './templates/index.js';
+export { getCliVersion } from './utils/version.js';
 
 // Auto-run if executed directly as a script
 const isMain =

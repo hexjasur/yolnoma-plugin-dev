@@ -3,9 +3,10 @@ import { buildPluginCommand } from '../commands/build.js';
 import { installPluginCommand } from '../commands/install.js';
 import { uninstallPluginCommand } from '../commands/uninstall.js';
 import { devPluginCommand } from '../commands/dev.js';
+import { getCliVersion } from '../utils/version.js';
 import { logger } from '../utils/logger.js';
 
-const VERSION = '0.1.0';
+const VERSION = getCliVersion();
 
 export async function runCli(args: string[]): Promise<void> {
   if (args.length === 0 || args.includes('-h') || args.includes('--help')) {

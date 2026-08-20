@@ -1,4 +1,7 @@
-﻿import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup';
+import fs from 'fs';
+
+const pkg = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -10,4 +13,7 @@ export default defineConfig({
   sourcemap: true,
   bundle: true,
   minify: false,
+  define: {
+    '__CLI_VERSION__': JSON.stringify(pkg.version),
+  },
 });
