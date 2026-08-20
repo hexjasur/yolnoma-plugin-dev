@@ -1,6 +1,6 @@
 {
   "name": "yolnoma-plugin-dev",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Official developer CLI and build tool for Yolnoma plugins",
   "author": "JK Software",
   "license": "MIT",
